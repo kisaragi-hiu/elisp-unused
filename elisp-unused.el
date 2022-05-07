@@ -192,7 +192,10 @@ as the latter has the file location information in it."
 Functions and macros are considered used if something in the
 project references them or if they are interactive (`commandp')."
   (interactive)
-  (let* ((ret
+  (let* ((project
+          (projectile-project-root
+           (or project default-directory)))
+         (ret
           (progn
             ;; Without this, if we run this from M-x when we're using
             ;; something like Ivy, the minibuffer would not come back
@@ -200,8 +203,7 @@ project references them or if they are interactive (`commandp')."
             (redisplay)
             (elisp-unused--find-unused-callables project t)))
          (results (car ret))
-         (location-alist (cdr ret))
-         (project (or project default-directory)))
+         (location-alist (cdr ret)))
     (with-current-buffer (get-buffer-create "*Elisp Unused*")
       (setq default-directory project)
       (let ((inhibit-read-only t))
