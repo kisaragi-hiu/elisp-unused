@@ -50,7 +50,7 @@
 (require 's)
 
 (defun elisp-unused--find-references (identifier)
-  "Return references of IDENTIFIER.
+  "Return references of IDENTIFIER in the current project.
 
 This is actually suitable for use as an implementation of
 `xref-backend-references'."
@@ -201,9 +201,9 @@ project references them or if they are interactive (`commandp')."
             (elisp-unused--find-unused-callables project t)))
          (results (car ret))
          (location-alist (cdr ret))
-         (default-directory (or project default-directory))
-         (project default-directory))
+         (project (or project default-directory)))
     (with-current-buffer (get-buffer-create "*Elisp Unused*")
+      (setq default-directory project)
       (let ((inhibit-read-only t))
         (erase-buffer)
         (special-mode)
