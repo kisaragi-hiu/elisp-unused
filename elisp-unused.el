@@ -156,8 +156,10 @@ Results are returned in the form (IDENTIFIER . (:path PATH :line LINE))."
                       (format "%s" (nth 1 (car r)))))
     results))
 
-(defun elisp-unused--find-unused-callables (&optional project)
+(defun elisp-unused--find-unused-callables (&optional project interactive?)
   "Return list of unused callables in PROJECT.
+
+When INTERACTIVE? is non-nil, report progress.
 
 Actually returns both the list of unused callables and the list
 of all callables (as a cons cell (UNUSED-CALLABLES . LOCATION-ALIST)),
@@ -165,7 +167,8 @@ as the latter has the file location information in it."
   (let* ((location-alist (elisp-unused--find-defined-things project))
          (things (mapcar #'car location-alist))
          (len (length things))
-         (default-directory (or project default-directory)))
+         (default-directory (or project default-directory))
+         (inhibit-message (not interactive?)))
     (cons (cl-remove
            nil
            (cl-loop with reporter = (make-progress-reporter
@@ -185,12 +188,17 @@ as the latter has the file location information in it."
 (defun elisp-unused-list-unused-callables (&optional project)
   "List unused functions and macros in PROJECT."
   (interactive)
-  (let* ((ret (elisp-unused--find-unused-callables project))
+  (let* ((ret
+          (progn
+            ;; Without this, if we run this from M-x when we're using
+            ;; something like Ivy, the minibuffer would not come back
+            ;; to one line when the progress is being reported.
+            (redisplay)
+            (elisp-unused--find-unused-callables project t)))
          (results (car ret))
          (location-alist (cdr ret))
          (default-directory (or project default-directory))
          (project default-directory))
-    (redisplay)
     (with-current-buffer (get-buffer-create "*Elisp Unused*")
       (let ((inhibit-read-only t))
         (erase-buffer)
