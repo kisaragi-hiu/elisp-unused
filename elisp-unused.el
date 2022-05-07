@@ -63,7 +63,7 @@ This is actually suitable for use as an implementation of
                                              identifier
                                              (buffer-file-name)
                                              (projectile-project-root)
-                                             '("JJJ")
+                                             '("(\\(|\\s|')JJJ(\\s|\\))")
                                              "elisp"
                                              nil)
                                     ;; rg and ag ignore hidden files by default, which
