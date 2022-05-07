@@ -207,6 +207,9 @@ project references them or if they are interactive (`commandp')."
       (let ((inhibit-read-only t))
         (erase-buffer)
         (special-mode)
+        (setq-local revert-buffer-function
+                    (lambda (&rest _)
+                      (elisp-unused-list-unused-callables)))
         (insert (format
                  (propertize "%s unused callables defined in %s:\n\n"
                              'face
