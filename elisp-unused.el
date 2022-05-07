@@ -156,18 +156,17 @@ Results are returned in the form (IDENTIFIER . (:path PATH :line LINE))."
                       (format "%s" (nth 1 (car r)))))
     results))
 
-(defun elisp-unused-list-unused-callables (&optional project)
-  "List unused functions and macros in PROJECT."
-  (interactive)
+(defun elisp-unused--find-unused-callables (&optional project)
+  "Return list of unused callables in PROJECT.
+
+Actually returns both the list of unused callables and the list
+of all callables (as a cons cell (UNUSED-CALLABLES . LOCATION-ALIST)),
+as the latter has the file location information in it."
   (let* ((location-alist (elisp-unused--find-defined-things project))
          (things (mapcar #'car location-alist))
          (len (length things))
-         (default-directory (or project default-directory))
-         (project default-directory)
-         results)
-    (redisplay)
-    (setq results
-          (cl-remove
+         (default-directory (or project default-directory)))
+    (cons (cl-remove
            nil
            (cl-loop with reporter = (make-progress-reporter
                                      "Looking for unused callables..." 0 len)
@@ -180,7 +179,18 @@ Results are returned in the form (IDENTIFIER . (:path PATH :line LINE))."
                         (unless (or (> count 1)
                                     (commandp (intern thing)))
                           (list thing count))))
-                    finally do (progress-reporter-done reporter))))
+                    finally do (progress-reporter-done reporter)))
+          location-alist)))
+
+(defun elisp-unused-list-unused-callables (&optional project)
+  "List unused functions and macros in PROJECT."
+  (interactive)
+  (let* ((ret (elisp-unused--find-unused-callables project))
+         (results (car ret))
+         (location-alist (cdr ret))
+         (default-directory (or project default-directory))
+         (project default-directory))
+    (redisplay)
     (with-current-buffer (get-buffer-create "*Elisp Unused*")
       (let ((inhibit-read-only t))
         (erase-buffer)
@@ -196,7 +206,7 @@ Results are returned in the form (IDENTIFIER . (:path PATH :line LINE))."
                   'face '(link variable-pitch)
                   'action (lambda (&rest _)
                             (find-file project)))))
-        (cl-loop for (func count) in results
+        (cl-loop for (func _) in results
                  do
                  ;; Establish a unique binding, otherwise all buttons
                  ;; will refer to the same variable.
