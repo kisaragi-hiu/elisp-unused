@@ -207,7 +207,10 @@ Results are returned in the form (IDENTIFIER . (:path PATH :line LINE))."
                                     ;; This will work even for files
                                     ;; that are not loaded.
                                     (let ((props (cdr (assoc func location-alist))))
-                                      (find-file (plist-get props :path))
+                                      (find-file
+                                       (expand-file-name
+                                        (plist-get props :path)
+                                        project))
                                       (goto-char (point-min))
                                       (forward-line (1- (plist-get props :line))))))))
                    (insert
