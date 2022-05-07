@@ -143,7 +143,7 @@ Results are returned in the form (IDENTIFIER . (:path PATH :line LINE))."
     (cl-loop for r in results
              when (car r)
              do (setf (car r)
-                      (read (car r))))
+                      (ignore-errors (read (car r)))))
     (setq results (--remove (let ((thing (car it)))
                               (or (not (listp thing))
                                   (not thing)
