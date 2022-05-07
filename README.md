@@ -14,6 +14,8 @@ I haven't been able to find a command that lists all unused functions in an Emac
 
 After installation, the command `elisp-unused-list-unused-callables` will become available. Run it in an Emacs Lisp project, then all unused functions and macros will be listed in a new buffer.
 
+![Emacs showing two buffers, one displaying a file called init.el, and another listing unused callables in /home/kisaragi-hiu/.dotfiles/emacs/.](./elisp-unused-1.0.png)
+
 ## Caveats
 
 Commands are always considered “used” because they are supposed to be used by something outside the project. This should apply to public functions as well, but I don't think that's possible since there is no reliable way to tell a public function from a private one.
