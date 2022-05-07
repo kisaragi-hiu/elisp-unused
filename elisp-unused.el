@@ -2,7 +2,7 @@
 
 ;; Author: Kisaragi Hiu
 ;; Version: 0.1
-;; Package-Requires: ((emacs "26.1"))
+;; Package-Requires: ((emacs "26.1") (projectile "2.5.0") (dumb-jump "0.5.4") (dash "2.19.1") (s "1.12.0"))
 ;; Homepage: https://github.com/kisaragi-hiu/elisp-unused
 ;; Keywords: lisp
 
@@ -45,6 +45,9 @@
 (require 'xref)
 (require 'dumb-jump)
 (require 'projectile)
+
+(require 'dash)
+(require 's)
 
 (defun elisp-unused--find-references (identifier)
   "Return references of IDENTIFIER.
