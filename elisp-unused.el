@@ -185,6 +185,7 @@ as the latter has the file location information in it."
                     finally do (progress-reporter-done reporter)))
           location-alist)))
 
+;;;###autoload
 (defun elisp-unused-list-unused-callables (&optional project)
   "List unused functions and macros in PROJECT."
   (interactive)
