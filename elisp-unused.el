@@ -187,7 +187,10 @@ as the latter has the file location information in it."
 
 ;;;###autoload
 (defun elisp-unused-list-unused-callables (&optional project)
-  "List unused functions and macros in PROJECT."
+  "List unused functions and macros in PROJECT.
+
+Functions and macros are considered used if something in the
+project references them or if they are interactive (`commandp')."
   (interactive)
   (let* ((ret
           (progn
