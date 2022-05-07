@@ -209,6 +209,7 @@ project references them or if they are interactive (`commandp')."
       (let ((inhibit-read-only t))
         (erase-buffer)
         (special-mode)
+        (visual-line-mode)
         (setq-local revert-buffer-function
                     (lambda (&rest _)
                       (elisp-unused-list-unused-callables)))
