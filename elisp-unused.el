@@ -38,7 +38,7 @@
 ;; which heavily abuses `dumb-jump'.
 ;;
 ;; Looking for references of an identifier is done through
-;; `xref-backend-references'.
+;; `elisp-unused--find-references'.
 
 ;;; Code:
 
@@ -164,16 +164,20 @@ Results are returned in the form (IDENTIFIER . (:path PATH :line LINE))."
          results)
     (redisplay)
     (setq results
-          (cl-loop with reporter = (make-progress-reporter
-                                    "Looking for unused callables..." 0 len)
-                   for thing being the elements of things using (index i)
-                   collect
-                   (progn
-                     (progress-reporter-update reporter (1+ i))
-                     (list thing
-                           (length
-                            (elisp-unused--find-references thing))))
-                   finally do (progress-reporter-done reporter)))
+          (cl-remove
+           nil
+           (cl-loop with reporter = (make-progress-reporter
+                                     "Looking for unused callables..." 0 len)
+                    for thing being the elements of things using (index i)
+                    collect
+                    (progn
+                      (progress-reporter-update reporter (1+ i))
+                      (let ((count (length
+                                    (elisp-unused--find-references thing))))
+                        (unless (or (> count 1)
+                                    (commandp (intern thing)))
+                          (list thing count))))
+                    finally do (progress-reporter-done reporter))))
     (with-current-buffer (get-buffer-create "*Elisp Unused*")
       (let ((inhibit-read-only t))
         (erase-buffer)
@@ -190,8 +194,6 @@ Results are returned in the form (IDENTIFIER . (:path PATH :line LINE))."
                   'action (lambda (&rest _)
                             (find-file project)))))
         (cl-loop for (func count) in results
-                 unless (or (> count 1)
-                            (commandp (intern func)))
                  do
                  ;; Establish a unique binding, otherwise all buttons
                  ;; will refer to the same variable.
