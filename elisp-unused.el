@@ -112,6 +112,38 @@ If PROJECT is non-nil, look there instead."
                     nil))))
     (plist-get results :results)))
 
+(defun elisp-unused--find-definition-forms ()
+  (with-temp-buffer
+    (setq-local buffer-undo-list t)
+    (cl-loop with root = (projectile-project-root)
+             with files = (--map
+                           (f-expand it root)
+                           (--filter
+                            (f-ext? it "el")
+                            (projectile-project-files root)))
+             with len = (length files)
+             for f being the elements of files
+             using (index i)
+             collect
+             (progn
+               (message "%s/%s..." (1+ i) len)
+               (let ((format-alist nil)
+                     (after-insert-file-functions nil)
+                     (inhibit-file-name-handlers
+                      (append '(jka-compr-handler image-file-handler epa-file-handler)
+                              (and (eq inhibit-file-name-operation 'insert-file-contents)
+                                   inhibit-file-name-handlers)))
+                     (inhibit-file-name-operation 'insert-file-contents))
+                 (insert-file-contents f nil nil nil t))
+               (goto-char (point-min))
+               (cl-loop until (eobp)
+                        if (let ((form (ignore-errors
+                                         (read (current-buffer)))))
+                             (and form
+                                  (memq (car form) '(defun defmacro cl-defun cl-defmacro))
+                                  form))
+                        collect it)))))
+
 (defun elisp-unused--find-defined-things (&optional project)
   "List all symbols that are defined in this project.
 
