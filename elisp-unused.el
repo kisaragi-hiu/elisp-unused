@@ -75,12 +75,13 @@ This is actually suitable for use as an implementation of
                                               '(ag rg git-grep-plus-ag))
                                         " --hidden"
                                       "")))
-                           (buffer-file-name)
-                           ;; dumb-jump uses this to filter out the "current"
-                           ;; reference, ie. the reference in the same file & on the
-                           ;; same line as point. Since that's not applicable here, we
-                           ;; can pass an impossible line number and make it return
-                           ;; everything.
+                           ;; dumb-jump uses these to filter out the jump
+                           ;; origin, ie. the reference in the same file & on
+                           ;; the same line as point. Since that's not
+                           ;; applicable here, we can pass an impossible file
+                           ;; name and an impossible line number and make it
+                           ;; return everything.
+                           ""
                            0))
     (cl-loop for ref in results
              collect (xref-make (plist-get ref :context)
