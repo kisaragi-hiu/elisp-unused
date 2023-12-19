@@ -20,7 +20,9 @@ After installation, the command `elisp-unused-list-unused-callables` will become
 
 Commands are always considered “used” because they are supposed to be used by something outside the project. This should apply to public functions as well, but I don't think that's possible since there is no reliable way to tell a public function from a private one.
 
-I decided to (ab)use [dumb-jump](https://github.com/jacktasia/dumb-jump)'s facilities to find references and definitions. ~~This allowed the package to be fast~~ (`read` might actually be faster), but it's… inelegant. For example, this is what I did to make `dumb-jump-fetch-results` work for this project:
+Only top level functions are discovered; even text that looks like function definitions in strings end up being discovered. It's worked well enough for myself though.
+
+I decided to (ab)use [dumb-jump](https://github.com/jacktasia/dumb-jump)'s facilities to find references and definitions, as it felt faster and easier than using `read` and scanning through files myself. This is… inelegant. For example, this is what I did to make `dumb-jump-fetch-results` work for this project:
 
 ```elisp
 (let ((results (cl-letf (((symbol-function 'dumb-jump--get-symbol-start)
@@ -39,19 +41,6 @@ I decided to (ab)use [dumb-jump](https://github.com/jacktasia/dumb-jump)'s facil
                   "elisp"
                   nil)))))
 ```
-
-I should probably try utilizing `read` to find definitions, with something like
-
-```elisp
-(save-excursion
-  (goto-char (point-min))
-  (let (forms nil)
-    (while (let ((form (ignore-errors (read (current-buffer)))))
-             (when form (push form forms)) form))
-    (nreverse forms)))
-```
-
-.
 
 # License
 

@@ -19,6 +19,8 @@ If DIR is nil, create it."
 (defvar unused/two (+ (used/return-one) 1))
 (defun unused/a () 10)
 (defun unused/another () 10)
+(let ((var t))
+  (defun unused/c () t))
 ")))
 
 (defun teardown ()
