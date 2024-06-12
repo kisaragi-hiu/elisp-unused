@@ -113,17 +113,26 @@ If PROJECT is non-nil, look there instead."
                     nil))))
     (plist-get results :results)))
 
-(defun elisp-unused--find-defined-things (&optional project)
+(defun elisp-unused--find-defined-things (&optional project def-set)
   "List all symbols that are defined in this project.
 
 If PROJECT is non-nil, look there instead.
 
+If DEF-SET is non-nil, it should be a list of symbols that start
+definition forms, such as `defun' or `defmacro'. The default
+behavior is equivalent to passing \\='(defun defmacro) for this
+argument.
+
 Results are returned in the form (IDENTIFIER . (:path PATH :line LINE))."
   (let (results)
+    (unless def-set
+      (setq def-set '(defun defmacro)))
     (setq
-     results (append
-              (elisp-unused--find-def "defun" project)
-              (elisp-unused--find-def "defmacro" project))
+     results (apply
+              #'append
+              (--map
+               (elisp-unused--find-def (format "%s" it) project)
+               def-set))
      results (cl-loop
               for r in results
               when (s-starts-with? "(" (plist-get r :context))
